@@ -24,26 +24,6 @@ variable "public_access_block" {
   }
 }
 
-variable "aws_s3_bucket_website_configuration" {
-  description = "S3 bucket website configuration."
-  type = object({
-    index_document = object({
-      suffix = string
-    })
-    error_document = object({
-      key = string
-    })
-  })
-  default = {
-    index_document = {
-      suffix = "index.html"
-    }
-    error_document = {
-      key = "error.html"
-    }
-  }
-}
-
 variable "lambda_notifications" {
   type = list(object({
     lambda_arn    = string
@@ -54,3 +34,9 @@ variable "lambda_notifications" {
   }))
   default = []
 }
+
+variable "enable_s3_cors" {
+  description = "Enable CORS configuration for the S3 bucket."
+  type        = bool
+  default     = false
+} 

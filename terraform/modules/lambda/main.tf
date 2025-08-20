@@ -7,6 +7,7 @@ resource "aws_lambda_function" "this" {
 
   filename         = data.archive_file.this.output_path
   source_code_hash = data.archive_file.this.output_base64sha256
+  layers = var.layers
 
   environment {
     variables = var.environment_variables
@@ -15,8 +16,8 @@ resource "aws_lambda_function" "this" {
 
 data "archive_file" "this" {
   type        = "zip"
-  source_dir  = "${path.module}/${var.source_dir}"
-  output_path = "${path.module}/${var.source_dir}.zip"
+  source_dir  = "${path.root}/lambda/${var.source_dir}"
+  output_path = "${path.root}/lambda/${var.source_dir}.zip"
 }
 
 # S3 bucket notification to trigger the image processing Lambda

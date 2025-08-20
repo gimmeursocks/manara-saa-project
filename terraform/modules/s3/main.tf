@@ -1,7 +1,8 @@
 # S3 bucket
 resource "aws_s3_bucket" "this" {
   bucket = "${var.project_name}-${var.bucket_name}-bucket"
-
+  force_destroy = true
+  
   tags = {
     Name = "${var.bucket_name}"
   }
@@ -17,17 +18,6 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = var.public_access_block.restrict_public_buckets
 }
 
-# Enable static website hosting for the processed images bucket
-resource "aws_s3_bucket_website_configuration" "this" {
-  bucket = aws_s3_bucket.this.id
-  index_document {
-    suffix = var.aws_s3_bucket_website_configuration.index_document.suffix
-  }
-  error_document {
-    key = var.aws_s3_bucket_website_configuration.error_document.key
-  }
-}
-
 resource "aws_s3_bucket_notification" "this" {
   bucket = aws_s3_bucket.this.id
 
@@ -36,8 +26,21 @@ resource "aws_s3_bucket_notification" "this" {
     content {
       lambda_function_arn = lambda_function.value.lambda_arn
       events              = lambda_function.value.events
-      filter_suffix       = lookup(lambda_function.value, "filter_suffix", null)
-      filter_prefix       = lookup(lambda_function.value, "filter_prefix", null)
+      filter_suffix       = lookup(lambda_function.value, "filter_suffix")
+      filter_prefix       = lookup(lambda_function.value, "filter_prefix")
     }
+  }
+}
+
+resource "aws_s3_bucket_cors_configuration" "this" {
+  count  = var.enable_s3_cors ? 1 : 0
+  bucket = aws_s3_bucket.this.id
+
+  cors_rule {
+    allowed_methods = ["GET", "PUT", "POST"]
+    allowed_origins = ["*"]
+    allowed_headers = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
   }
 }

@@ -46,3 +46,9 @@ variable "bucket_arn" {
   type        = string
   default     = ""
 }
+
+variable "layers" {
+  description = "List of Lambda layers to attach to the function"
+  type        = list(string)
+  default     = []
+}
